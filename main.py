@@ -338,8 +338,8 @@ with st.sidebar:
     <div class="info-box">
     Dashboard de prediccion de tasas de credito de consumo en Colombia.<br><br>
     <strong>Datos:</strong> Superfinanciera<br>
-    <strong>Periodo:</strong>Sept 2023 - Feb 2026<br>
-    <strong>Prediccion:</strong> Mayo 2026 (T+3)
+    <strong>Periodo:</strong> Sept 2023 - Marzo 2026<br>
+    <strong>Prediccion:</strong> Junio 2026 (T+3)
     </div>
     """, unsafe_allow_html=True)
 
@@ -366,8 +366,8 @@ if banco_sel != "Todos":
 # =============================================================================
 col_title, col_badge = st.columns([4, 1])
 with col_title:
-    st.markdown('<h1 class="main-title">Predicción de Tasas de Interes para Creditos de Consumo en Colombia</h1>', unsafe_allow_html=True)
-    st.markdown('<p class="subtitle">Análisis y predicción mensual de tasas efectivas promedio en entidades bancarias colombianas, utilizando información histórica del período 2023–2026 <span class="badge-green">● Datos: Superfinanciera de Colombia</span></p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-title">Predicción de la tasa efectiva anual para créditos de consumo de libre inversión en Colombia</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle">Análisis y predicción de la tasa efectiva anual promedio ponderada para creditos de consumo de libre inversión en entidades bancarias colombianas, utilizando información histórica del período 2023–2026<span class="badge-green">● Datos: Superfinanciera de Colombia</span></p>', unsafe_allow_html=True)
 
 
 # =============================================================================
@@ -438,7 +438,7 @@ tab1, tab3, tab4 = st.tabs([
 # TAB 1: RANKING DE BANCOS
 # =============================================================================
 with tab1:
-    st.markdown('<div class="section-header">Ranking de Bancos por Tasa Predicha (Mayo 2026)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Ranking de Bancos por Tasa Predicha (Junio 2026)</div>', unsafe_allow_html=True)
     
     # Opciones de ordenamiento
     col_ord1, col_ord2 = st.columns([3, 1])
@@ -877,6 +877,6 @@ st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #64748b; font-size: 0.8rem;">
     Dashboard de Prediccion de Tasas de Credito de Consumo | Datos: Superfinanciera de Colombia | 
-    Periodo: Sept 2023 - Feb 2026 | Prediccion: Mayo 2026 (T+3)
+    Periodo: Sept 2023 - Mar 2026 | Prediccion: Junio 2026 (T+3)
 </div>
 """, unsafe_allow_html=True)

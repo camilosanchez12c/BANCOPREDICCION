@@ -7,7 +7,7 @@
   "valid_meses": 6,
   "n_trials_intensivo": 80,
   "timeout_estudio_segundos": null,
-  "n_jobs_modelos_arboles": -1,
+  "n_jobs_modelos_arboles": 6,
   "r2_minimo_aceptable": 0.0,
   "horizonte_meses": 3
 }

@@ -1,0 +1,12 @@
+﻿rango_original,clave_rango_original,registros,primer_mes,ultimo_mes,meses,fechas_corte,bancos,creditos_reportados,tasa_minima,tasa_maxima,rango_orden_propuesto,rango_monto_propuesto,accion_revision
+N/A,n a,12933,2022-07,2023-09,15,65,24,3136621,0.0,47.09,,,revisar/no asignado
+Mayor a 3 SMLMV menor o igual a 6 SMLMV,mayor a 3 smlmv menor o igual a 6 smlmv,468459,2023-09,2026-02,30,127,26,1119316,0.0,43.39,2,Mayor a 3 SMLMV y menor o igual a 6 SMLMV,agrupar
+Mayor a 1 SMLMV menor o igual a 3 SMLMV,mayor a 1 smlmv menor o igual a 3 smlmv,441563,2023-09,2026-02,30,127,26,1211227,1.94,42.05,1,Menor o igual a 3 SMLMV,agrupar
+Mayor a 6 SMLMV menor o igual a 12 SMLMV,mayor a 6 smlmv menor o igual a 12 smlmv,422968,2023-09,2026-02,30,127,26,967291,0.0,42.05,3,Mayor a 6 SMLMV y menor o igual a 12 SMLMV,agrupar
+Mayor a 12 SMLMV menor o igual a 25 SMLMV,mayor a 12 smlmv menor o igual a 25 smlmv,309760,2023-09,2026-02,30,127,26,680889,0.0,42.05,4,Mayor a 12 SMLMV y menor o igual a 25 SMLMV,agrupar
+Hasta 1 SMLMV,hasta 1 smlmv,193810,2023-09,2026-02,30,127,24,511690,0.0,42.05,1,Menor o igual a 3 SMLMV,agrupar
+Mayor a 25 SMLMV menor o igual a 50 SMLMV,mayor a 25 smlmv menor o igual a 50 smlmv,191038,2023-09,2026-02,30,127,24,403859,0.0,42.05,5,Mayor a 25 SMLMV y menor o igual a 100 SMLMV,agrupar
+Mayor a 50 SMLMV menor o igual a 100 SMLMV,mayor a 50 smlmv menor o igual a 100 smlmv,83239,2023-09,2026-02,30,127,23,188927,0.0,42.04,5,Mayor a 25 SMLMV y menor o igual a 100 SMLMV,agrupar
+Mayor a 100 SMLMV menor o igual a 150 SMLMV,mayor a 100 smlmv menor o igual a 150 smlmv,23387,2023-09,2026-02,30,127,21,52513,0.0,41.91,6,Mayor a 100 SMLMV,agrupar
+Mayor a 150 SMLMV menor o igual a 300 SMLMV,mayor a 150 smlmv menor o igual a 300 smlmv,10009,2023-09,2026-02,30,127,21,42202,4.03,42.04,6,Mayor a 100 SMLMV,agrupar
+Mayor 300 SMLMV,mayor 300 smlmv,3026,2023-09,2026-02,30,127,14,515759,4.5,42.04,6,Mayor a 100 SMLMV,agrupar
