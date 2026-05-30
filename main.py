@@ -880,3 +880,4 @@ st.markdown("""
     Periodo: Sept 2023 - Mar 2026 | Prediccion: Junio 2026 (T+3)
 </div>
 """, unsafe_allow_html=True)
+#cambio para los nuevo csv 
