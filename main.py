@@ -548,8 +548,8 @@ with tab1:
     st.markdown("#### Comparacion: Tasa Base vs Tasa Predicha")
     
     fig_comp = go.Figure()
-    fig_comp.add_trace(go.Bar(name="Tasa Base (Feb 2026)", x=rank_calc["banco"], y=rank_calc["tasa_base"], marker_color="#64748b"))
-    fig_comp.add_trace(go.Bar(name="Tasa Predicha (May 2026)", x=rank_calc["banco"], y=rank_calc["prediccion_tasa_t3"], marker_color="#38bdf8"))
+    fig_comp.add_trace(go.Bar(name="Tasa Base (Mar 2026)", x=rank_calc["banco"], y=rank_calc["tasa_base"], marker_color="#64748b"))
+    fig_comp.add_trace(go.Bar(name="Tasa Predicha (Jun 2026)", x=rank_calc["banco"], y=rank_calc["prediccion_tasa_t3"], marker_color="#38bdf8"))
     fig_comp.update_layout(
         barmode="group",
         plot_bgcolor="rgba(0,0,0,0)",
