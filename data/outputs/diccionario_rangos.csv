@@ -1,0 +1,11 @@
+﻿rango_monto_desembolsado,rango_orden,rango_monto
+Hasta 1 SMLMV,1,Menor o igual a 3 SMLMV
+Mayor a 1 SMLMV menor o igual a 3 SMLMV,1,Menor o igual a 3 SMLMV
+Mayor a 3 SMLMV menor o igual a 6 SMLMV,2,Mayor a 3 SMLMV y menor o igual a 6 SMLMV
+Mayor a 6 SMLMV menor o igual a 12 SMLMV,3,Mayor a 6 SMLMV y menor o igual a 12 SMLMV
+Mayor a 12 SMLMV menor o igual a 25 SMLMV,4,Mayor a 12 SMLMV y menor o igual a 25 SMLMV
+Mayor a 25 SMLMV menor o igual a 50 SMLMV,5,Mayor a 25 SMLMV y menor o igual a 100 SMLMV
+Mayor a 50 SMLMV menor o igual a 100 SMLMV,5,Mayor a 25 SMLMV y menor o igual a 100 SMLMV
+Mayor 300 SMLMV,6,Mayor a 100 SMLMV
+Mayor a 100 SMLMV menor o igual a 150 SMLMV,6,Mayor a 100 SMLMV
+Mayor a 150 SMLMV menor o igual a 300 SMLMV,6,Mayor a 100 SMLMV

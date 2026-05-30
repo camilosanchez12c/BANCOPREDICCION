@@ -6,7 +6,7 @@ __pycache__/
 *.pyc
 
 # Datos pesados
-data/outputs/*.csv
+#data/outputs/*.csv
 
 # Modelos pesados
 *.h5
