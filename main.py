@@ -1974,7 +1974,7 @@ with tab4:
 st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #64748b; font-size: 0.8rem;">
-    Dashboard de Prediccion de Tasas de Credito de Consumo | Datos: Superfinanciera de Colombia | 
+    Dashboard de Prediccion de Tasas de Credito camibo de refercni para ver que paso de Consumo | Datos: Superfinanciera de Colombia | 
     Periodo: Oct 2023 - Feb 2026 | Prediccion: Mayo 2026 (T+3)
 </div>
 """, unsafe_allow_html=True)
