@@ -697,7 +697,7 @@ PAPER_BG = "#FFFFFF"
 FONT_COLOR = "#000000"  # Negro para mejor visibilidad
 GRID_COLOR = "#E2E8F0"
 BAR_COLOR_1 = "#2563EB"  # Azul vibrante
-BAR_COLOR_2 = "#64748B"  # Gris
+BAR_COLOR_2 = "#000000"  # Negro
 COLOR_SCALE = ["#3B82F6", "#2563EB", "#1E40AF"]  # Escala de azules
 PIE_COLORS = ["#1E40AF", "#2563EB", "#3B82F6", "#60A5FA", "#10B981", "#F59E0B"]
 
