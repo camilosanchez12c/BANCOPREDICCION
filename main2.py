@@ -699,7 +699,7 @@ GRID_COLOR = "#E2E8F0"
 BAR_COLOR_1 = "#2563EB"  # Azul vibrante
 BAR_COLOR_2 = "#FFB347"  # Negro
 COLOR_SCALE = ["#3B82F6", "#2563EB", "#1E40AF"]  # Escala de azules
-PIE_COLORS = ["#D81212","#F59E0B", "#E1F00F","#10B981", "#3B82F6", "#FA60F2"]
+PIE_COLORS = ["#1E40AF", "#2563EB", "#3B82F6", "#60A5FA", "#10B981", "#F59E0B"]
 
 
 # =============================================================================
@@ -836,9 +836,9 @@ with tab1:
         </div>
         """, unsafe_allow_html=True)
     with col_ord2:
-        orden = st.selectbox("Orden global", ["Menor a mayor", "Mayor  a menor"], key="orden_rank", label_visibility="collapsed")
+        orden = st.selectbox("Orden global", ["Menor tasa primero", "Mayor tasa primero"], key="orden_rank", label_visibility="collapsed")
     
-    ascending = orden == "Menor a mayor"
+    ascending = orden == "Menor tasa primero"
     
     # Calcular ranking
     rank_calc = pred_filtradas.groupby("banco").agg({
@@ -1053,13 +1053,53 @@ with tab1:
         )
         st.plotly_chart(fig_vol, use_container_width=True, key="vol_chart_rank")
     
+    # Comparacion Tasa Base vs Predicha
+    sort_comp = render_chart_header_with_sort(
+        "Tasa Base vs Predicha", 
+        "Comparacion Marzo vs Junio 2026",
+        "comp_tasa",
+        sort_options=["Por tasa predicha (menor)", "Por tasa predicha (mayor)", "Por tasa base (menor)", "Por tasa base (mayor)"]
+    )
+    
+    render_chart_info('''
+        <strong>Barra gris:</strong> Tasa actual (Marzo 2026)<br>
+        <strong>Barra azul:</strong> Tasa predicha (Junio 2026)<br><br>
+        Si la barra azul es <strong>mas baja</strong> = La tasa bajara (bueno para ti)<br>
+        Si la barra azul es <strong>mas alta</strong> = La tasa subira (malo para ti)
+    ''', "blue", "comp_tasa")
+    
+    # Ordenar datos de comparacion
+    if "predicha (menor)" in sort_comp:
+        comp_sorted = rank_calc.sort_values("prediccion_tasa_t3", ascending=True)
+    elif "predicha (mayor)" in sort_comp:
+        comp_sorted = rank_calc.sort_values("prediccion_tasa_t3", ascending=False)
+    elif "base (menor)" in sort_comp:
+        comp_sorted = rank_calc.sort_values("tasa_base", ascending=True)
+    else:
+        comp_sorted = rank_calc.sort_values("tasa_base", ascending=False)
+    
+    fig_comp = go.Figure()
+    fig_comp.add_trace(go.Bar(name="Tasa Base (Mar 2026)", x=comp_sorted["banco"], y=comp_sorted["tasa_base"], marker_color=BAR_COLOR_2))
+    fig_comp.add_trace(go.Bar(name="Tasa Predicha (Jun 2026)", x=comp_sorted["banco"], y=comp_sorted["prediccion_tasa_t3"], marker_color=BAR_COLOR_1))
+    fig_comp.update_layout(
+        barmode="group",
+        plot_bgcolor=PLOT_BG,
+        paper_bgcolor=PAPER_BG,
+        font_color=FONT_COLOR,
+        height=350,
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
+        xaxis=dict(tickangle=-45, gridcolor=GRID_COLOR, tickfont=dict(color="#000000")),
+        yaxis=dict(title=dict(text="Tasa (%)", font=dict(color="#000000")), gridcolor=GRID_COLOR, tickfont=dict(color="#000000")),
+        margin=dict(l=0, r=0, t=30, b=100)
+    )
+    st.plotly_chart(fig_comp, use_container_width=True, key="comp_chart_rank")
     
     # Distribucion por Rango de Monto
     sort_rango = render_chart_header_with_sort(
         "Distribucion por Rango de Monto", 
         "Tasa promedio y volumen por rango",
         "dist_rango",
-        sort_options=["Menor a mayor", "Mayor a menor"]
+        sort_options=["Menor tasa primero", "Mayor tasa primero"]
     )
     
     render_chart_info('''
@@ -1074,7 +1114,7 @@ with tab1:
     }).reset_index()
     
     # Ordenar segun seleccion
-    rango_sorted = rango_agg.sort_values("prediccion_tasa_t3", ascending=(sort_rango == "Menor a mayor"))
+    rango_sorted = rango_agg.sort_values("prediccion_tasa_t3", ascending=(sort_rango == "Menor tasa primero"))
     
     col_r1, col_r2 = st.columns(2)
     
@@ -1176,7 +1216,24 @@ with tab1:
         )
     
     # Resumen final del Tab
-  
+    st.markdown("---")
+    st.markdown("#### Resumen de tu Busqueda")
+    
+    filtro_banco_txt = f"**{banco_sel}**" if banco_sel != "Todos" else "todos los bancos"
+    filtro_rango_txt = f"**{rango_sel}**" if rango_sel != "Todos" else "todos los rangos"
+    
+    if len(rank_calc) > 0:
+        mejor = rank_calc.iloc[0]
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border-radius: 12px; padding: 20px; margin: 16px 0;">
+            <p style="font-size: 1rem; color: #1E40AF; margin: 0;">
+                Buscaste en {filtro_banco_txt} para {filtro_rango_txt}.<br><br>
+                La mejor opcion es <strong style="font-size: 1.2rem;">{mejor['banco']}</strong> con una tasa predicha de 
+                <strong style="font-size: 1.3rem; color: #059669;">{mejor['prediccion_tasa_t3']:.2f}%</strong> para Junio 2026.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
 #este por ahora no se va a usar poqruqe al momento de subir los cambios 
 #a git hub es demasiado pesado los 2 archivos que tienen la data cruda
 
@@ -1503,7 +1560,211 @@ with tab3:
     st.dataframe(tabla_simple, use_container_width=True, height=350, hide_index=True)
     
     # Grafico comparativo interactivo - Scatter R2 vs MAE
-   
+    sort_scatter_models = render_chart_header_with_sort(
+        "Comparativa: Precision vs Error", 
+        "Cada punto representa un modelo",
+        "scatter_models",
+        sort_options=["Por precision (mayor)", "Por precision (menor)", "Por error (menor)", "Por error (mayor)"]
+    )
+    
+    render_chart_info('''
+        <strong>Eje X:</strong> Precision (R2) - Mayor es mejor<br>
+        <strong>Eje Y:</strong> Error (MAE) - Menor es mejor<br><br>
+        El modelo ideal esta en la <strong>esquina inferior derecha</strong> (alta precision, bajo error).<br>
+        <strong>Cuadrados grises</strong> = Baselines | <strong>Circulos azules</strong> = Machine Learning
+    ''', "blue", "scatter_models")
+    
+    # Ordenar modelo_resumen segun seleccion
+    if "precision (mayor)" in sort_scatter_models:
+        modelo_scatter = modelo_resumen.sort_values("r2", ascending=False)
+    elif "precision (menor)" in sort_scatter_models:
+        modelo_scatter = modelo_resumen.sort_values("r2", ascending=True)
+    elif "error (menor)" in sort_scatter_models:
+        modelo_scatter = modelo_resumen.sort_values("mae", ascending=True)
+    else:
+        modelo_scatter = modelo_resumen.sort_values("mae", ascending=False)
+    
+    fig_scatter_models = go.Figure()
+    
+    for _, row in modelo_scatter.iterrows():
+        is_baseline = "baseline" in row["modelo"].lower()
+        fig_scatter_models.add_trace(go.Scatter(
+            x=[row["r2"]],
+            y=[row["mae"]],
+            mode="markers+text",
+            name=row["modelo_display"],
+            text=[row["modelo_display"]],
+            textposition="top center",
+            textfont=dict(size=9, color="#64748B"),
+            marker=dict(
+                size=18,
+                color="#64748B" if is_baseline else "#2563EB",
+                symbol="square" if is_baseline else "circle",
+                line=dict(width=2, color="#FFFFFF")
+            ),
+            hovertemplate=f"<b>{row['modelo_display']}</b><br>R2: {row['r2']:.4f}<br>MAE: {row['mae']:.4f}<extra></extra>"
+        ))
+    
+    # Zona ideal (esquina inferior derecha)
+    fig_scatter_models.add_shape(
+        type="rect",
+        x0=0.8, y0=0, x1=1.0, y1=0.5,
+        fillcolor="rgba(5, 150, 105, 0.1)",
+        line=dict(color="rgba(5, 150, 105, 0.3)", dash="dot")
+    )
+    fig_scatter_models.add_annotation(
+        x=0.9, y=0.25,
+        text="Zona Ideal",
+        showarrow=False,
+        font=dict(size=10, color="#059669")
+    )
+    
+    fig_scatter_models.update_layout(
+        plot_bgcolor=PLOT_BG,
+        paper_bgcolor=PAPER_BG,
+        font_color=FONT_COLOR,
+        height=400,
+        showlegend=False,
+        xaxis=dict(
+            title=dict(text="Precision (R2) - Mayor es mejor", font=dict(color="#000000")),
+            gridcolor=GRID_COLOR,
+            tickfont=dict(color="#000000"),
+            range=[min(modelo_resumen["r2"]) - 0.05, 1.0]
+        ),
+        yaxis=dict(
+            title=dict(text="Error (MAE) - Menor es mejor", font=dict(color="#000000")),
+            gridcolor=GRID_COLOR,
+            tickfont=dict(color="#000000")
+        ),
+        margin=dict(l=0, r=0, t=10, b=0)
+    )
+    st.plotly_chart(fig_scatter_models, use_container_width=True, key="scatter_models")
+    
+    # Leyenda
+    st.markdown("""
+    <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 20px;">
+        <span style="display: flex; align-items: center; gap: 5px;">
+            <span style="width: 12px; height: 12px; background: #64748B; border-radius: 2px;"></span>
+            <span style="font-size: 0.8rem; color: #64748B;">Modelos Baseline</span>
+        </span>
+        <span style="display: flex; align-items: center; gap: 5px;">
+            <span style="width: 12px; height: 12px; background: #2563EB; border-radius: 50%;"></span>
+            <span style="font-size: 0.8rem; color: #64748B;">Modelos Machine Learning</span>
+        </span>
+        <span style="display: flex; align-items: center; gap: 5px;">
+            <span style="width: 12px; height: 12px; background: rgba(5, 150, 105, 0.3); border-radius: 2px;"></span>
+            <span style="font-size: 0.8rem; color: #64748B;">Zona Ideal</span>
+        </span>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Insight automatico
+    mejor_ml = modelo_resumen[~modelo_resumen["modelo"].str.contains("baseline", case=False)].sort_values("r2", ascending=False).head(1)
+    mejor_baseline = modelo_resumen[modelo_resumen["modelo"].str.contains("baseline", case=False)].sort_values("r2", ascending=False).head(1)
+    
+    if len(mejor_ml) > 0 and len(mejor_baseline) > 0:
+        ml_r2 = mejor_ml.iloc[0]["r2"]
+        bl_r2 = mejor_baseline.iloc[0]["r2"]
+        ml_name = mejor_ml.iloc[0]["modelo_display"]
+        bl_name = mejor_baseline.iloc[0]["modelo_display"]
+        
+        if bl_r2 > ml_r2:
+            insight_text = f"Los modelos baseline superan a los modelos ML. <strong>{bl_name}</strong> (R2: {bl_r2:.2%}) es mejor que <strong>{ml_name}</strong> (R2: {ml_r2:.2%}). Esto sugiere que las tasas de interes tienen alta inercia y son dificiles de predecir con modelos complejos."
+            insight_color = "#FEF3C7"
+            insight_border = "#F59E0B"
+        else:
+            insight_text = f"Los modelos ML superan a los baselines. <strong>{ml_name}</strong> (R2: {ml_r2:.2%}) es mejor que <strong>{bl_name}</strong> (R2: {bl_r2:.2%})."
+            insight_color = "#DCFCE7"
+            insight_border = "#059669"
+        
+        st.markdown(f"""
+        <div style="background: {insight_color}; border-left: 4px solid {insight_border}; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 16px 0; font-size: 0.85rem; color: #1E293B;">
+        <strong>Insight:</strong> {insight_text}
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Explorador de modelos individual
+    st.markdown("---")
+    st.markdown("#### Explorador de Modelos")
+    st.markdown("""
+    <div class="metric-explanation">
+        Selecciona un modelo para ver su descripcion detallada y como funciona.
+    </div>
+    """, unsafe_allow_html=True)
+    
+    modelo_seleccionado = st.selectbox(
+        "Selecciona un modelo para ver detalles",
+        options=modelo_resumen["modelo"].tolist(),
+        format_func=format_model_name,
+        key="explorador_modelo"
+    )
+    
+    if modelo_seleccionado:
+        datos_modelo = modelo_resumen[modelo_resumen["modelo"] == modelo_seleccionado].iloc[0]
+        descripcion = MODEL_DESCRIPTIONS.get(modelo_seleccionado, "Sin descripcion disponible")
+        es_baseline = "baseline" in modelo_seleccionado.lower()
+        
+        col_det1, col_det2 = st.columns([2, 1])
+        
+        with col_det1:
+            tipo_badge = '<span class="comparison-badge badge-neutral">Baseline</span>' if es_baseline else '<span class="comparison-badge" style="background: #DBEAFE; color: #1E40AF;">Machine Learning</span>'
+            
+            st.markdown(f"""
+            <div class="interactive-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h3 style="margin: 0; color: #1E293B;">{format_model_name(modelo_seleccionado)}</h3>
+                        {tipo_badge}
+                    </div>
+                </div>
+                <p style="margin-top: 16px; color: #64748B; font-size: 0.95rem;">{descripcion}</p>
+                <div style="display: flex; gap: 40px; margin-top: 20px;">
+                    <div>
+                        <div style="font-size: 0.75rem; color: #64748B; text-transform: uppercase;">Precision (R2)</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #059669;">{datos_modelo['r2']:.2%}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #64748B; text-transform: uppercase;">Error (MAE)</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #DC2626;">{datos_modelo['mae']:.2f}</div>
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col_det2:
+            # Indicador visual de calidad
+            r2_percent = datos_modelo['r2'] * 100
+            if r2_percent >= 85:
+                calidad = "Excelente"
+                calidad_color = "#059669"
+                calidad_bg = "#DCFCE7"
+            elif r2_percent >= 70:
+                calidad = "Bueno"
+                calidad_color = "#2563EB"
+                calidad_bg = "#DBEAFE"
+            elif r2_percent >= 50:
+                calidad = "Regular"
+                calidad_color = "#F59E0B"
+                calidad_bg = "#FEF3C7"
+            else:
+                calidad = "Bajo"
+                calidad_color = "#DC2626"
+                calidad_bg = "#FEE2E2"
+            
+            st.markdown(f"""
+            <div style="background: {calidad_bg}; border-radius: 12px; padding: 20px; text-align: center; height: 100%;">
+                <div style="font-size: 0.8rem; color: #64748B; text-transform: uppercase; margin-bottom: 8px;">Calidad del Modelo</div>
+                <div style="font-size: 2rem; font-weight: 800; color: {calidad_color};">{calidad}</div>
+                <div style="margin-top: 16px;">
+                    <div style="background: #E2E8F0; border-radius: 8px; height: 12px; overflow: hidden;">
+                        <div style="background: {calidad_color}; height: 100%; width: {min(r2_percent, 100)}%;"></div>
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748B; margin-top: 4px;">{r2_percent:.1f}% precision</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+
 # =============================================================================
 # TAB 4: DATOS Y ESTADISTICAS
 # =============================================================================
@@ -1559,6 +1820,40 @@ with tab4:
     else:
         st.warning("No hay datos para mostrar con los filtros seleccionados.")
     
+    # Histograma mejorado con ordenamiento
+    sort_hist = render_chart_header_with_sort(
+        "Distribucion de Tasas", 
+        "Frecuencia de predicciones por rango de tasa",
+        "hist_tasas",
+        sort_options=["Menor a mayor", "Mayor a menor"]
+    )
+    
+    render_chart_info('''
+        Muestra cuantas predicciones caen en cada rango de tasa.<br>
+        Una <strong>distribucion concentrada</strong> indica tasas similares entre bancos.<br>
+        Una <strong>distribucion dispersa</strong> indica mucha variedad.
+    ''', "green", "hist_tasas")
+    
+    if len(pred_filtradas) > 0:
+        # Ordenar datos del histograma
+        hist_data = pred_filtradas.sort_values("prediccion_tasa_t3", ascending=(sort_hist == "Menor a mayor"))
+        
+        fig_hist = px.histogram(
+            hist_data,
+            x="prediccion_tasa_t3",
+            nbins=20,
+            color_discrete_sequence=["#2563EB"]
+        )
+        fig_hist.update_layout(
+            plot_bgcolor=PLOT_BG,
+            paper_bgcolor=PAPER_BG,
+            font_color=FONT_COLOR,
+            height=300,
+            xaxis=dict(title=dict(text="Tasa Predicha (%)", font=dict(color="#000000")), gridcolor=GRID_COLOR, tickfont=dict(color="#000000")),
+            yaxis=dict(title=dict(text="Frecuencia", font=dict(color="#000000")), gridcolor=GRID_COLOR, tickfont=dict(color="#000000")),
+            margin=dict(l=0, r=0, t=10, b=0)
+        )
+        st.plotly_chart(fig_hist, use_container_width=True, key="hist_chart_tab4")
     
     # Box plot por banco con ordenamiento
     sort_box = render_chart_header_with_sort(
@@ -1602,51 +1897,77 @@ with tab4:
             margin=dict(l=0, r=0, t=10, b=100)
         )
         st.plotly_chart(fig_box, use_container_width=True, key="box_chart_tab4")
-        
     
-    # Comparacion Tasa Base vs Predicha
-    sort_comp = render_chart_header_with_sort(
+    # Scatter Tasa Base vs Predicha con ordenamiento
+    sort_scatter = render_chart_header_with_sort(
         "Tasa Base vs Predicha", 
-        "Comparacion Marzo vs Junio 2026",
-        "comp_tasa",
-        sort_options=["Por tasa predicha (menor)", "Por tasa predicha (mayor)", "Por tasa base (menor)", "Por tasa base (mayor)"]
+        "Relacion entre tasa actual y predicha",
+        "scatter_base_pred",
+        sort_options=["Por tasa predicha", "Por tasa base", "Por banco"]
     )
     
     render_chart_info('''
-        <strong>Barra gris:</strong> Tasa actual (Marzo 2026)<br>
-        <strong>Barra azul:</strong> Tasa predicha (Junio 2026)<br><br>
-        Si la barra azul es <strong>mas baja</strong> = La tasa bajara (bueno para ti)<br>
-        Si la barra azul es <strong>mas alta</strong> = La tasa subira (malo para ti)
-    ''', "blue", "comp_tasa")
+        <strong>Cada punto:</strong> Una combinacion banco + rango de monto<br>
+        <strong>Linea diagonal:</strong> Referencia "sin cambio" (tasa queda igual)<br><br>
+        <strong>Puntos debajo de la linea:</strong> La tasa bajara<br>
+        <strong>Puntos arriba de la linea:</strong> La tasa subira
+    ''', "blue", "scatter_base_pred")
     
-    # Ordenar datos de comparacion
-    if "predicha (menor)" in sort_comp:
-        comp_sorted = rank_calc.sort_values("prediccion_tasa_t3", ascending=True)
-    elif "predicha (mayor)" in sort_comp:
-        comp_sorted = rank_calc.sort_values("prediccion_tasa_t3", ascending=False)
-    elif "base (menor)" in sort_comp:
-        comp_sorted = rank_calc.sort_values("tasa_base", ascending=True)
-    else:
-        comp_sorted = rank_calc.sort_values("tasa_base", ascending=False)
+    if len(pred_filtradas) > 0:
+        # Ordenar segun seleccion
+        if sort_scatter == "Por tasa predicha":
+            scatter_data = pred_filtradas.sort_values("prediccion_tasa_t3")
+        elif sort_scatter == "Por tasa base":
+            scatter_data = pred_filtradas.sort_values("tasa_base")
+        else:
+            scatter_data = pred_filtradas.sort_values("banco")
+        
+        fig_scatter = px.scatter(
+            scatter_data,
+            x="tasa_base",
+            y="prediccion_tasa_t3",
+            color="banco",
+            hover_data=["rango_monto"],
+            color_discrete_sequence=px.colors.qualitative.Set2
+        )
+        # Linea diagonal de referencia
+        min_val = min(pred_filtradas["tasa_base"].min(), pred_filtradas["prediccion_tasa_t3"].min())
+        max_val = max(pred_filtradas["tasa_base"].max(), pred_filtradas["prediccion_tasa_t3"].max())
+        fig_scatter.add_trace(go.Scatter(
+            x=[min_val, max_val],
+            y=[min_val, max_val],
+            mode="lines",
+            name="Sin Cambio",
+            line=dict(color="#64748b", dash="dash")
+        ))
+        fig_scatter.update_layout(
+            plot_bgcolor=PLOT_BG,
+            paper_bgcolor=PAPER_BG,
+            font_color=FONT_COLOR,
+            height=450,
+            legend=dict(orientation="v", yanchor="top", y=1, xanchor="left", x=1.02),
+            xaxis=dict(title=dict(text="Tasa Base (%)", font=dict(color="#000000")), gridcolor=GRID_COLOR, tickfont=dict(color="#000000")),
+            yaxis=dict(title=dict(text="Tasa Predicha (%)", font=dict(color="#000000")), gridcolor=GRID_COLOR, tickfont=dict(color="#000000")),
+            margin=dict(l=0, r=150, t=10, b=0)
+        )
+        st.plotly_chart(fig_scatter, use_container_width=True, key="scatter_chart_tab4")
     
-    fig_comp = go.Figure()
-    fig_comp.add_trace(go.Bar(name="Tasa Base (Mar 2026)", x=comp_sorted["banco"], y=comp_sorted["tasa_base"], marker_color=BAR_COLOR_2))
-    fig_comp.add_trace(go.Bar(name="Tasa Predicha (Jun 2026)", x=comp_sorted["banco"], y=comp_sorted["prediccion_tasa_t3"], marker_color=BAR_COLOR_1))
-    fig_comp.update_layout(
-        barmode="group",
-        plot_bgcolor=PLOT_BG,
-        paper_bgcolor=PAPER_BG,
-        font_color=FONT_COLOR,
-        height=350,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5),
-        xaxis=dict(tickangle=-45, gridcolor=GRID_COLOR, tickfont=dict(color="#000000")),
-        yaxis=dict(title=dict(text="Tasa (%)", font=dict(color="#000000")), gridcolor=GRID_COLOR, tickfont=dict(color="#000000")),
-        margin=dict(l=0, r=0, t=30, b=100)
-    )
-    st.plotly_chart(fig_comp, use_container_width=True, key="comp_chart_rank")    
+    # Criterio de seleccion
+    st.markdown("#### Criterio de Seleccion de Modelos")
     
-    # Scatter Tasa Base vs Predicha con ordenamiento
-    
+    for _, row in criterio_df.iterrows():
+        with st.expander(f"Nivel: {row['nivel'].upper()}"):
+            st.markdown(f"""
+            - **Baseline de referencia:** {row['baseline_referencia']}
+            - **R2 baseline:** {row['r2_baseline']:.4f}
+            - **MAE baseline:** {row['mae_baseline']:.4f}
+            - **Modelo recomendado:** {row['modelo_recomendado']}
+            - **R2 recomendado:** {row['r2_recomendado']:.4f}
+            - **MAE recomendado:** {row['mae_recomendado']:.4f}
+            - **Criterio:** {row['criterio']}
+            """)
+
+
 # =============================================================================
 # FOOTER
 # =============================================================================
@@ -1654,6 +1975,6 @@ st.markdown("---")
 st.markdown("""
 <div style="text-align: center; color: #64748b; font-size: 0.8rem;">
     Dashboard de Prediccion de Tasas de Credito camibo de refercni para ver que paso de Consumo | Datos: Superfinanciera de Colombia | 
-    Periodo: Sept 2023 - Mar 2026 | Prediccion: Junio 2026 (T+3)
+    Periodo: Oct 2023 - Feb 2026 | Prediccion: Mayo 2026 (T+3)
 </div>
 """, unsafe_allow_html=True)
