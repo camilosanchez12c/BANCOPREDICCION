@@ -707,8 +707,8 @@ PIE_COLORS = ["#D81212","#F59E0B", "#E1F00F","#10B981", "#3B82F6", "#FA60F2"]
 # =============================================================================
 col_title, col_badge = st.columns([4, 1])
 with col_title:
-    st.markdown('<h1 class="main-title">Predicción de Tasas de Interes para Creditos de Consumo en Colombia</h1>', unsafe_allow_html=True)
-    st.markdown('<p class="subtitle">Análisis y predicción mensual de tasas efectivas promedio en entidades bancarias colombianas, utilizando información histórica del período 2023–2026 <span class="badge-green">● Datos: Superfinanciera de Colombia</span></p>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-title">Predicción de tasa efectiva anual para Créditos de Consumo de libre inversión en bancos colombianos</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="subtitle">Análisis y predicción de la tasa efectiva anual para las entidades bancarias colombianas en el mes de junio 2026, utilizando información histórica del período 2023–2026 <span class="badge-green">● Datos: Superfinanciera de Colombia</span></p>', unsafe_allow_html=True)
 
 
 # =============================================================================
